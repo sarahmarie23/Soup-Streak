@@ -18,8 +18,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 class SoupViewModel(private val context: Context, private val savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val _count = mutableStateOf(savedStateHandle.get("count") ?: 0)
-    private val _maxCount = mutableStateOf(savedStateHandle.get("maxCount") ?: 0)
+    private val _count = mutableStateOf(0)
+    private val _maxCount = mutableStateOf(0)
 
     val count: Int
         get() = _count.value
@@ -37,13 +37,10 @@ class SoupViewModel(private val context: Context, private val savedStateHandle: 
             _maxCount.value = _count.value
             saveMaxCountToPreferences()
         }
-        savedStateHandle.set("count", _count.value)
-        savedStateHandle.set("maxCount", _maxCount.value)
     }
 
     fun resetCount() {
         _count.value = 0
-        savedStateHandle.set("count", _count.value)
     }
 
     fun resetMaxCount() {
@@ -65,12 +62,16 @@ class SoupViewModel(private val context: Context, private val savedStateHandle: 
 
 class SoupViewModelFactory(
     private val context: Context,
-    private val owner: ViewModelStoreOwner
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    owner: ViewModelStoreOwner,
+    defaultArgs: Bundle? = null
+) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
+    override fun <T : ViewModel?> create(
+        key: String,
+        modelClass: Class<T>,
+        handle: SavedStateHandle
+    ): T {
         if (modelClass.isAssignableFrom(SoupViewModel::class.java)) {
-            val savedStateHandle = SavedStateHandle.createHandle(owner)
-            return SoupViewModel(context, savedStateHandle) as T
+            return SoupViewModel(context, handle) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
@@ -80,7 +81,7 @@ class SoupViewModelFactory(
 fun MyApp() {
     val context = LocalContext.current
     val viewModel: SoupViewModel = viewModel(
-        factory = SoupViewModelFactory(context, LocalLifecycleOwner.current)
+        factory = SoupViewModelFactory(context, LocalViewModelStoreOwner.current)
     )
     SoupScreen(viewModel)
 }
