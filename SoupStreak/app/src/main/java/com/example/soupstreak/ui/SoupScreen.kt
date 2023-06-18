@@ -4,16 +4,18 @@ import SoupViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,8 +37,7 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
     val countState = viewModel.count
     val maxCountState = viewModel.maxCount
     val imagePainter: Painter = painterResource(R.drawable.soup_image)
-
-    val showDialog = remember { mutableStateOf(false) }
+    val openDialog = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxHeight(),
@@ -49,20 +50,25 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
             modifier = Modifier.padding(vertical = 16.dp)
         )
         Text(
-            text = " Max streak: ${maxCountState} ${if (maxCountState == 1) "day" else "days"}",
+            text = " Max streak: ${maxCountState.value} ${if (maxCountState.value == 1) "day" else "days"}",
             fontSize = 16.sp
         )
         Image(
             painter = imagePainter,
             contentDescription = "Bowl of soup",
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier.padding(24.dp).clickable(
+                onClick = {
+                    openDialog.value = true
+                },
+                onClickLabel = "Open reset menu"
+            )
         )
         Text(
-            text = " ${countState}",
+            text = " ${countState.value}",
             fontSize = 40.sp
         )
         Text(
-            text = "${if (countState == 1) "day" else "days"}",
+            text = if (countState.value == 1) "day" else "days",
             modifier = Modifier.padding(16.dp)
         )
         Row(
@@ -75,7 +81,7 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
             Button(
                 onClick = { viewModel.resetCount() },
 
-            ) {
+                ) {
                 Text(
                     text = "X",
                     fontSize = 40.sp
@@ -84,58 +90,57 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
             Button(
                 onClick = { viewModel.incrementCount() },
 
-            ) {
+                ) {
                 Text(
                     text = "+",
                     fontSize = 40.sp
                 )
             }
         }
-        ImageAsButton(onClick = { showDialog.value = true }) {
+        Button(
+            onClick = { viewModel.resetMaxCount() }
+        ) {
             Text(
                 text = "Reset",
                 modifier = Modifier.padding(vertical = 16.dp)
             )
         }
-        if (showDialog.value) {
-            ResetMaxDialog(
-                onConfirm = {
-                    viewModel.resetMaxCount()
-                    showDialog.value = false
-                },
-                onDismiss = { showDialog.value = false }
-            )
-        }
     }
-}
+    
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                openDialog.value = false
+            },
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = null)},
+            title = {
+                Text(text = "Reset streak")
+            },
+            text = {
+                Text("Are you sure you want to reset your max streak?"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDialog.value = false
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openDialog.value = false
+                    }
+                ) {
+                    Text("Dismiss")
+                }
+            }
+        )
 
-@Composable
-fun ImageAsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .padding(16.dp)
-            .clickable { onClick() }
-    ) {
-        content()
     }
-}
-
-@Composable
-fun ResetMaxDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = "Reset Max Streak?") },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text(text = "Yes")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text(text = "No")
-            }
-        }
-    )
 }
 
 
