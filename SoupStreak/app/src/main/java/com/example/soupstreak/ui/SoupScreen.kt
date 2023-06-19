@@ -4,16 +4,21 @@ import SoupViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,12 +61,14 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
         Image(
             painter = imagePainter,
             contentDescription = "Bowl of soup",
-            modifier = Modifier.padding(24.dp).clickable(
-                onClick = {
-                    openDialog.value = true
-                },
-                onClickLabel = "Open reset menu"
-            )
+            modifier = Modifier
+                .padding(24.dp)
+                .clickable(
+                    onClick = {
+                        openDialog.value = true
+                    },
+                    onClickLabel = "Open reset menu"
+                )
         )
         Text(
             text = " ${countState.value}",
@@ -82,29 +89,36 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
                 onClick = { viewModel.resetCount() },
 
                 ) {
+                Icon(Icons.Filled.Refresh, contentDescription = null)
                 Text(
-                    text = "X",
-                    fontSize = 40.sp
+                    text = "Reset",
+                    fontSize = 14.sp
                 )
             }
+
             Button(
                 onClick = { viewModel.incrementCount() },
 
                 ) {
+
+                Icon(Icons.Filled.Add, contentDescription = null)
+
                 Text(
-                    text = "+",
-                    fontSize = 40.sp
+                    text = "Increase",
+                    fontSize = 14.sp
                 )
             }
+
         }
-        Button(
+
+       /* Button(
             onClick = { viewModel.resetMaxCount() }
         ) {
             Text(
                 text = "Reset",
                 modifier = Modifier.padding(vertical = 16.dp)
             )
-        }
+        }*/
     }
     
     if (openDialog.value) {
@@ -112,7 +126,7 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
             onDismissRequest = {
                 openDialog.value = false
             },
-            icon = { Icon(Icons.Filled.Favorite, contentDescription = null)},
+            icon = { Icon(Icons.Filled.Delete , contentDescription = null)},
             title = {
                 Text(text = "Reset streak")
             },
@@ -123,6 +137,7 @@ fun SoupScreen(viewModel: SoupViewModel = viewModel()) {
             confirmButton = {
                 TextButton(
                     onClick = {
+                        viewModel.resetMaxCount()
                         openDialog.value = false
                     }
                 ) {
