@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 class SoupViewModel : ViewModel() {
     private val _count = mutableStateOf(0)
     private val _maxCount = mutableStateOf(0)
+    private val _recentDate = mutableStateOf(0)
 
     val count: State<Int> = _count
     val maxCount: State<Int> = _maxCount
